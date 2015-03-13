@@ -26,7 +26,7 @@ shinyUI(
                             inputId = "external_gene_name",
                             label = "Gene name:",
                             choices = genes_choices,
-                            selected = "IRF7"),
+                            selected = "IRF1"),
                         
                         checkboxGroupInput(
                             inputId = "animals",
