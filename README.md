@@ -1,7 +1,6 @@
 # GOexpress (alvmac)
 Example of a shiny app wrapped around the output object of the
-[GOexpress](
-http://master.bioconductor.org/packages/devel/bioc/html/GOexpress.html)
+[GOexpress](http://master.bioconductor.org/packages/devel/bioc/html/GOexpress.html)
 Bioconductor package.
 
 ## GOexpress: Gene Ontology for expression data
