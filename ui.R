@@ -12,6 +12,7 @@ animals_choices <- sort(unique(as.character(alvmac.eSet$Animal)))
 hours_choices <- levels(alvmac.eSet$Time)
 
 shinyUI(
+    
     fluidPage(
         
         title = 'Alveolar macrophages shiny app',
@@ -19,7 +20,7 @@ shinyUI(
         fluidRow(
             
             column(
-                width = 12,
+                width = 11,
                 sidebarLayout(
                     sidebarPanel(
                         selectInput(
@@ -72,27 +73,29 @@ shinyUI(
                     ), # end of sidebarPanel
                     
                     mainPanel(
-                        tabsetPanel(
+                        tabsetPanel(type = 'pills',
                             tabPanel(
                                 "Expression profiles",
-                                plotOutput("exprProfiles", width = "800px", height = "600px")
+                                plotOutput("exprProfiles", width = "100%", height = "600px")
                             ), 
                             tabPanel(
                                 "Expression plot",
-                                plotOutput("exprPlot", width = "800px", height = "600px")
+                                plotOutput("exprPlot", width = "100%", height = "600px")
                             ),
                             tabPanel(
                                 "Samples info",
-                                dataTableOutput('Adataframe'))
-                        )
-                    ) #  end of mainPanel 
+                                dataTableOutput('Adataframe')
+                                )
+                            )
+                        
+                        ) #  end of mainPanel 
+                        
+                    ) # end of sidebarLayout
                     
-                ) # end of sidebarLayout
+                ) # end of columnn (12)
                 
-            ) # end of columnn (12)
-            
-        ) # end of fluidRow
+            )  # end of fluidRow
         
-    ) # End of fluidPage
+        ) # End of fluidPage
     
-) # End of shinyUI
+    ) # End of shinyUI
