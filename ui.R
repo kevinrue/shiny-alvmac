@@ -11,91 +11,109 @@ animals_choices <- sort(unique(as.character(alvmac.eSet$Animal)))
 
 hours_choices <- levels(alvmac.eSet$Time)
 
-shinyUI(
+
+shinyUI(fluidPage(
     
-    fluidPage(
-        
-        title = 'Alveolar macrophages shiny app',
-        
-        fluidRow(
-            
-            column(
-                width = 11,
-                sidebarLayout(
-                    sidebarPanel(
-                        selectInput(
-                            inputId = "external_gene_name",
-                            label = "Gene name:",
-                            choices = genes_choices,
-                            selected = "IRF1"),
-                        
-                        checkboxGroupInput(
-                            inputId = "animals",
-                            label = "Animals:",
-                            choices = animals_choices,
-                            selected = animals_choices,
-                            inline = TRUE),
-                        
-                        checkboxGroupInput(
-                            inputId = "infection",
-                            label = "Infection:",
-                            choices = list(
-                                "Control"="CN",
-                                "M. tuberculosis"="TB",
-                                "M. bovis"="MB"),
-                            selected = c("CN", "TB", "MB"),
-                            inline = TRUE),
-                        
-                        checkboxGroupInput(
-                            inputId = "hours",
-                            label = "Hours post-infection:",
-                            choices = hours_choices,
-                            selected = hours_choices[-1],
-                            inline = TRUE),
-                        
-                        sliderInput(
-                            inputId = "linesize",
-                            label = "Line size",
-                            min = 0,
-                            max = 2,
-                            value = 1.5,
-                            step = 0.25
-                        ),
-                        
-                        numericInput(
-                            inputId = "index",
-                            label = "Plot index: (0 for all plots)",
-                            value = 0,
-                            min = 0,
-                            step = 1
-                        )
-                        
-                    ), # end of sidebarPanel
+    titlePanel("AlvMac sample app"),
+    
+    navlistPanel(widths = c(3, 9),
+        "Genes",
+        tabPanel(
+            "Expression profiles",
+            h3("Expression profiles"),
+            sidebarLayout(
+                sidebarPanel(
+                    selectInput(
+                        inputId = "external_gene_name",
+                        label = "Gene name:",
+                        choices = genes_choices,
+                        selected = "IRF1"),
                     
-                    mainPanel(
-                        tabsetPanel(type = 'pills',
-                            tabPanel(
-                                "Expression profiles",
-                                plotOutput("exprProfiles", width = "100%", height = "600px")
+                    checkboxGroupInput(
+                        inputId = "animals",
+                        label = "Animals:",
+                        choices = animals_choices,
+                        selected = animals_choices,
+                        inline = TRUE),
+                    
+                    checkboxGroupInput(
+                        inputId = "infection",
+                        label = "Infection:",
+                        choices = list(
+                            "Control"="CN",
+                            "M. tuberculosis"="TB",
+                            "M. bovis"="MB"),
+                        selected = c("CN", "TB", "MB"),
+                        inline = TRUE),
+                    
+                    checkboxGroupInput(
+                        inputId = "hours",
+                        label = "Hours post-infection:",
+                        choices = hours_choices,
+                        selected = hours_choices[-1],
+                        inline = TRUE),
+                    
+                    sliderInput(
+                        inputId = "linesize",
+                        label = "Line size",
+                        min = 0,
+                        max = 2,
+                        value = 1.5,
+                        step = 0.25
+                    ),
+                    
+                    numericInput(
+                        inputId = "index",
+                        label = "Plot index: (0 for all plots)",
+                        value = 0,
+                        min = 0,
+                        step = 1
+                    )
+                    
+                ), # end of sidebarPanel
+                
+                mainPanel(
+                    tabsetPanel(
+                        type = 'pills',
+                        tabPanel(
+                            "Sample series",
+                            plotOutput(
+                                "exprProfiles",
+                                width = "100%", height = "600px"
+                                )
                             ), 
-                            tabPanel(
-                                "Expression plot",
-                                plotOutput("exprPlot", width = "100%", height = "600px")
-                            ),
-                            tabPanel(
-                                "Samples info",
-                                dataTableOutput('Adataframe')
+                        tabPanel(
+                            "Sample groups",
+                            plotOutput(
+                                "exprPlot",
+                                width = "100%", height = "600px"
                                 )
                             )
                         
-                        ) #  end of mainPanel 
-                        
-                    ) # end of sidebarLayout
+                        )
                     
-                ) # end of columnn (12)
+                    ) #  end of mainPanel
                 
-            )  # end of fluidRow
+                ) # end of sidebarLayout
+            ),
         
-        ) # End of fluidPage
-    
-    ) # End of shinyUI
+            "Gene ontologies",
+        
+            tabPanel(
+                "Heatmap",
+                h3("Heatmap"),
+                "Coming soon."
+                
+            ),
+        
+            "-----",
+        
+            tabPanel(
+                "Samples info",
+                h3("Sample phenotypic information"),
+                dataTableOutput('Adataframe')
+                )
+        
+            )
+))
+
