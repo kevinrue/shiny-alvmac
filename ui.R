@@ -5,19 +5,26 @@ alvmac.eSet = readRDS(file = "data/alvmac.eset.0h.rds")
 
 AlvMac.external_gene_name = readRDS(file = "data/external_gene_names.rds")
 
+#go_choices = readRDS(file = 'data/go_choices.rds')
+go_choices = readRDS(file = 'data/go_ids.rds')
+default_go = go_choices[1]
+
 genes_choices <- sort(unique(AlvMac.external_gene_name))
+default_gene = 'IRF1'
 
 animals_choices <- sort(unique(as.character(alvmac.eSet$Animal)))
 
 hours_choices <- levels(alvmac.eSet$Time)
 
-
 shinyUI(fluidPage(
     
     titlePanel("AlvMac sample app"),
     
-    navlistPanel(widths = c(3, 9),
+    navlistPanel(
+        widths = c(3, 9),
+        
         "Genes",
+        
         tabPanel(
             "Expression profiles",
             h3("Expression profiles"),
@@ -27,7 +34,7 @@ shinyUI(fluidPage(
                         inputId = "external_gene_name",
                         label = "Gene name:",
                         choices = genes_choices,
-                        selected = "IRF1"),
+                        selected = default_gene),
                     
                     checkboxGroupInput(
                         inputId = "animals",
@@ -80,40 +87,96 @@ shinyUI(fluidPage(
                             plotOutput(
                                 "exprProfiles",
                                 width = "100%", height = "600px"
-                                )
-                            ), 
+                            )
+                        ), 
                         tabPanel(
                             "Sample groups",
                             plotOutput(
                                 "exprPlot",
                                 width = "100%", height = "600px"
-                                )
                             )
-                        
                         )
+                        
+                    )
                     
-                    ) #  end of mainPanel
+                ) #  end of mainPanel
                 
-                ) # end of sidebarLayout
-            ),
+            ) # end of sidebarLayout
+            
+            
+        ), # end of tabPanel
         
-            "Gene ontologies",
+        tabPanel(
+            "Scoring table",
+            h3("Scoring table"),
+            dataTableOutput('genesScore')
+        ),
         
-            tabPanel(
-                "Heatmap",
-                h3("Heatmap"),
-                "Coming soon."
-                
-            ),
+        "Gene ontologies",
         
-            "-----",
-        
-            tabPanel(
-                "Samples info",
-                h3("Sample phenotypic information"),
-                dataTableOutput('Adataframe')
+        tabPanel(
+            "Heatmap",
+            h3("Heatmap"),
+            sidebarLayout(
+                sidebarPanel(
+                    selectInput(
+                        inputId = "go_id",
+                        label = "GO id:",
+                        choices = go_choices,
+                        selected = default_go
+                    ),
+                    
+                    checkboxGroupInput(
+                        inputId = "hours.GO",
+                        label = "Hours post-infection:",
+                        choices = hours_choices,
+                        selected = hours_choices,
+                        inline = TRUE),
+                    
+                    checkboxGroupInput(
+                        inputId = "infection.GO",
+                        label = "Infection:",
+                        choices = list(
+                            "Control"="CN",
+                            "M. tuberculosis"="TB",
+                            "M. bovis"="MB"),
+                        selected = c("CN", "TB", "MB"),
+                        inline = TRUE),
+                    
+                    sliderInput(
+                        inputId = "cexRow.GO",
+                        label = "Row label size:",
+                        min = 0.5,
+                        max = 2,
+                        value = 0.8,
+                        step = 0.1
+                    )
+                    
+                    
+                ),
+                mainPanel(
+                    plotOutput(
+                        "heatmap",
+                        width = "100%", height = "600px"
+                    )
                 )
-        
             )
+            ),
+        
+        tabPanel(
+            "Scoring table",
+            h3("Scoring table"),
+            dataTableOutput('GOscores')
+            ),
+        
+        "-----",
+        
+        tabPanel(
+            "Samples info",
+            h3("Sample phenotypic information"),
+            dataTableOutput('Adataframe')
+        )
+        
+    )
 ))
 

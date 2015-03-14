@@ -7,17 +7,6 @@ gox.pval.subsetted = readRDS(file = "data/gox.pval.sub_manual.rds")
 shinyServer(
     function(input, output) {
         
-        # Compute the forumla text in a reactive expression since it is 
-        # shared by the output$caption and output$mpgPlot expressions
-        formulaText <- reactive({
-            paste("Expression profile for ", input$external_gene_name)
-        })
-        
-        # Return the formula text for printing as a caption
-        output$caption <- renderText({
-            formulaText()
-        })
-        
         # Generate a plot of the requested gene symbol by individual sample series
         output$exprProfiles <- renderPlot({
             expression_profiles_symbol(
@@ -56,9 +45,35 @@ shinyServer(
             )
         })
         
+        # Generate a heatmap of the requested GO identifier
+        output$heatmap <- renderPlot({
+            heatmap_GO(
+                go_id = input$go_id,
+                result = gox.pval.subsetted,
+                eSet = alvmac.eSet,
+                subset=list(
+                    Time=input$hours.GO,
+                    Infection=input$infection.GO
+                    ),
+                cexRow = input$cexRow.GO
+            )
+        })
+        
         # Turn the AnnotatedDataFrame into a data-table
         output$Adataframe <- renderDataTable(
             pData(alvmac.eSet),
+            options = list(
+                pageLength = 20)
+        )
+        
+        output$GOscores <- renderDataTable(
+            gox.pval.subsetted$GO,
+            options = list(
+                pageLength = 20)
+        )
+        
+        output$genesScore <- renderDataTable(
+            gox.pval.subsetted$genes,
             options = list(
                 pageLength = 20)
         )
