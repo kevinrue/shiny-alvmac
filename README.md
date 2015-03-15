@@ -30,3 +30,8 @@ Here, we created a small app using the results of a study where we seeked
 the genes and gene ontologies best clustering bovine alveolar macrophages
 experimentally infected with _M. bovis_, _M. tuberculosis_, or negative
 controls left uninfected.
+
+To limit the size of this sample app, we first filtered out all gene
+ontologies associated with fewer than 10 genes or more than 100 genes, and 
+then all genes not annotated to any remaining gene ontologies
+(except _IRF7_ which we like a lot).
