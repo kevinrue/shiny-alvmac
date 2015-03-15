@@ -1,19 +1,20 @@
 library(shiny)
 library(GOexpress)
 
+# Load ExpressionSet
 alvmac.eSet = readRDS(file = "data/alvmac.eset.0h.rds")
-
+# Instead of the entire GOexpress result and annotations:
+# Load the gene name annotations 
 AlvMac.external_gene_name = readRDS(file = "data/external_gene_names.rds")
-
-#go_choices = readRDS(file = 'data/go_choices.rds')
-go_choices = readRDS(file = 'data/go_ids.rds')
-default_go = go_choices[1]
-
 genes_choices <- sort(unique(AlvMac.external_gene_name))
 default_gene = 'IRF1'
-
+# Load the gene ontology annotations
+go_choices = readRDS(file = 'data/go_choices.rds')
+go_choices <- go_choices[sort(names(go_choices))]
+default_go = go_choices[[1]]
+# Prepare the individual animal choices
 animals_choices <- sort(unique(as.character(alvmac.eSet$Animal)))
-
+# Prepare the individual time-points choices
 hours_choices <- levels(alvmac.eSet$Time)
 
 shinyUI(fluidPage(
@@ -143,6 +144,13 @@ shinyUI(fluidPage(
                         selected = c("CN", "TB", "MB"),
                         inline = TRUE),
                     
+                    checkboxGroupInput(
+                        inputId = "animal.GO",
+                        label = "Animals:",
+                        choices = animals_choices,
+                        selected = animals_choices,
+                        inline = TRUE),
+                    
                     sliderInput(
                         inputId = "cexRow.GO",
                         label = "Row label size:",
@@ -157,7 +165,7 @@ shinyUI(fluidPage(
                 mainPanel(
                     plotOutput(
                         "heatmap",
-                        width = "100%", height = "600px"
+                        width = "100%", height = "700px"
                     )
                 )
             )

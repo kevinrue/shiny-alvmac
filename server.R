@@ -52,6 +52,7 @@ shinyServer(
                 result = gox.pval.subsetted,
                 eSet = alvmac.eSet,
                 subset=list(
+                    Animal=input$animal.GO,
                     Time=input$hours.GO,
                     Infection=input$infection.GO
                     ),
