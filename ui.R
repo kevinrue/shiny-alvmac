@@ -16,6 +16,8 @@ default_go = go_choices[[1]]
 animals_choices <- sort(unique(as.character(alvmac.eSet$Animal)))
 # Prepare the individual time-points choices
 hours_choices <- levels(alvmac.eSet$Time)
+# Maximal filter of minimal count of genes associated with a GO term
+max.GO.total = 1E3
 
 shinyUI(fluidPage(
     
@@ -174,6 +176,27 @@ shinyUI(fluidPage(
         tabPanel(
             "Scoring table",
             h3("Scoring table"),
+            fluidRow(
+                column(width = 1,
+                       numericInput(
+                           inputId = "min.total",
+                           label = "Min. total_count:",
+                           min = 0,
+                           max = max.GO.total,
+                           value = 15
+                       )
+                ),
+                column(width = 1,
+                       numericInput(
+                           inputId = "max.pval",
+                           label = "Max. p.val:",
+                           min = 0,
+                           max = 1,
+                           value = 0.05,
+                           step = 0.001
+                       )
+                )
+            ),
             dataTableOutput('GOscores')
             ),
         

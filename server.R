@@ -68,7 +68,11 @@ shinyServer(
         )
         
         output$GOscores <- renderDataTable(
-            gox.pval.subsetted$GO,
+            gox.pval.subsetted$GO[
+                which(
+                    gox.pval.subsetted$GO$total_count >= input$min.total &
+                        gox.pval.subsetted$GO$p.val <= input$max.pval)
+                ,],
             options = list(
                 pageLength = 20)
         )
