@@ -8,7 +8,7 @@ shinyServer(
     function(input, output) {
         
         # Generate a plot of the requested gene symbol by individual sample series
-        output$exprProfiles <- renderPlot({
+        output$exprProfilesSymbol <- renderPlot({
             expression_profiles_symbol(
                 gene_symbol = input$external_gene_name,
                 result = gox.pval.subsetted,
@@ -16,7 +16,7 @@ shinyServer(
                 x_var = "Timepoint",
                 seriesF = "Animal.Infection",
                 subset = list(
-                    Animal=input$animals,
+                    Animal=input$animals_symbol,
                     Time=input$hours,
                     Infection=input$infection
                 ),
@@ -29,9 +29,46 @@ shinyServer(
         })
         
         # Generate a plot of the requested gene symbol by sample groups
-        output$exprPlot <- renderPlot({
+        output$exprPlotSymbol <- renderPlot({
             expression_plot_symbol(
                 gene_symbol = input$external_gene_name,
+                result = gox.pval.subsetted,
+                eSet = alvmac.eSet,
+                x_var = "Timepoint",
+                subset = list(
+                    Animal=input$animals_symbol,
+                    Time=input$hours,
+                    Infection=input$infection
+                ),
+                index = input$index,
+                xlab="Hours post-infection",
+            )
+        })
+        
+        # Generate a plot of the requested gene symbol by individual sample series
+        output$exprProfiles <- renderPlot({
+            expression_profiles(
+                gene_id = input$ensembl_gene_id,
+                result = gox.pval.subsetted,
+                eSet = alvmac.eSet,
+                x_var = "Timepoint",
+                seriesF = "Animal.Infection",
+                subset = list(
+                    Animal=input$animals,
+                    Time=input$hours,
+                    Infection=input$infection
+                ),
+                colourF = "Infection",
+                #linetypeF = "Infection",
+                line.size = input$linesize,
+                xlab="Hours post-infection",
+            )
+        })
+        
+        # Generate a plot of the requested gene symbol by sample groups
+        output$exprPlot <- renderPlot({
+            expression_plot(
+                gene_id = input$ensembl_gene_id,
                 result = gox.pval.subsetted,
                 eSet = alvmac.eSet,
                 x_var = "Timepoint",
@@ -40,7 +77,6 @@ shinyServer(
                     Time=input$hours,
                     Infection=input$infection
                 ),
-                index = input$index,
                 xlab="Hours post-infection",
             )
         })
@@ -56,7 +92,11 @@ shinyServer(
                     Time=input$hours.GO,
                     Infection=input$infection.GO
                     ),
-                cexRow = input$cexRow.GO
+                cexRow = input$cexRow.GO,
+                margins = c(
+                    input$margins.heatmap.bottom,
+                    input$margins.heatmap.right
+                )
             )
         })
         

@@ -33,5 +33,4 @@ controls left uninfected.
 
 To limit the size of this sample app, we first filtered out all gene
 ontologies associated with fewer than 10 genes or more than 100 genes, and 
-then all genes not annotated to any remaining gene ontologies
-(except _IRF7_ which we like a lot).
+then all genes not annotated to any remaining gene ontologies.

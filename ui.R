@@ -3,34 +3,48 @@ library(GOexpress)
 
 # Load ExpressionSet
 alvmac.eSet = readRDS(file = "data/alvmac.eset.0h.rds")
+
+# Extract the Ensembl gene identifiers
+gene_ids = sort(rownames(alvmac.eSet))
+# SQSTM1 (alias BT.105440 in Ensembl release 71)
+default_geneId = 'ENSBTAG00000015591'
+
 # Instead of the entire GOexpress result and annotations:
 # Load the gene name annotations 
 AlvMac.external_gene_name = readRDS(file = "data/external_gene_names.rds")
 genes_choices <- sort(unique(AlvMac.external_gene_name))
-default_gene = 'IRF1'
+default_gene = 'TNFAIP1'
+
 # Load the gene ontology annotations
 go_choices = readRDS(file = 'data/go_choices.rds')
 go_choices <- go_choices[sort(names(go_choices))]
-default_go = go_choices[[1]]
+default_go = 'GO:0008009' # chemokine activity
 # Prepare the individual animal choices
 animals_choices <- sort(unique(as.character(alvmac.eSet$Animal)))
 # Prepare the individual time-points choices
 hours_choices <- levels(alvmac.eSet$Time)
+hours_heatmap <- c('24H', '48H')
+# Prepare the individual infection choices
+infection_choices = list(
+    'Control'='CN',
+    'M. tuberculosis'='TB',
+    'M. bovis'='MB')
+infection_selected = as.character(unlist(infection_choices))
 # Maximal filter of minimal count of genes associated with a GO term
 max.GO.total = 1E3
 
 shinyUI(fluidPage(
     
-    titlePanel("AlvMac sample app"),
+    titlePanel("AlvMac full app (updated 08/04/2015)"),
     
     navlistPanel(
-        widths = c(3, 9),
+        widths = c(2, 10),
         
         "Genes",
         
         tabPanel(
-            "Expression profiles",
-            h3("Expression profiles"),
+            "Expression profiles (Gene name)",
+            h3("Expression profiles by gene name"),
             sidebarLayout(
                 sidebarPanel(
                     selectInput(
@@ -40,24 +54,20 @@ shinyUI(fluidPage(
                         selected = default_gene),
                     
                     checkboxGroupInput(
-                        inputId = "animals",
-                        label = "Animals:",
+                        inputId = "animals_symbol",
+                        label = "Animal IDs:",
                         choices = animals_choices,
                         selected = animals_choices,
                         inline = TRUE),
                     
                     checkboxGroupInput(
-                        inputId = "infection",
+                        inputId = "infection_symbol",
                         label = "Infection:",
-                        choices = list(
-                            "Control"="CN",
-                            "M. tuberculosis"="TB",
-                            "M. bovis"="MB"),
-                        selected = c("CN", "TB", "MB"),
-                        inline = TRUE),
+                        choices = infection_choices,
+                        selected = infection_selected),
                     
                     checkboxGroupInput(
-                        inputId = "hours",
+                        inputId = "hours_symbol",
                         label = "Hours post-infection:",
                         choices = hours_choices,
                         selected = hours_choices[-1],
@@ -79,6 +89,66 @@ shinyUI(fluidPage(
                         min = 0,
                         step = 1
                     )
+                    
+                ), # end of sidebarPanel
+                
+                mainPanel(
+                    tabsetPanel(
+                        type = 'pills',
+                        tabPanel(
+                            "Sample series",
+                            plotOutput(
+                                "exprProfilesSymbol",
+                                width = "100%", height = "600px"
+                            )
+                        ), 
+                        tabPanel(
+                            "Sample groups",
+                            plotOutput(
+                                "exprPlotSymbol",
+                                width = "100%", height = "600px"
+                            )
+                        )
+                        
+                    )
+                    
+                ) #  end of mainPanel
+                
+            ) # end of sidebarLayout
+            
+            
+        ), # end of tabPanel
+        
+        tabPanel(
+            "Expression profiles (Ensembl ID)",
+            h3("Expression profiles by Ensembl gene identifier"),
+            sidebarLayout(
+                sidebarPanel(
+                    selectInput(
+                        inputId = "ensembl_gene_id",
+                        label = "Gene name:",
+                        choices = gene_ids,
+                        selected = default_geneId),
+                    
+                    checkboxGroupInput(
+                        inputId = "animals",
+                        label = "Animal IDs:",
+                        choices = animals_choices,
+                        selected = animals_choices,
+                        inline = TRUE),
+                    
+                    checkboxGroupInput(
+                        inputId = "infection",
+                        label = "Infection:",
+                        choices = infection_choices,
+                        selected = infection_selected),
+                    
+                    checkboxGroupInput(
+                        inputId = "hours",
+                        label = "Hours post-infection:",
+                        choices = hours_choices,
+                        selected = hours_choices[-1],
+                        inline = TRUE)
                     
                 ), # end of sidebarPanel
                 
@@ -124,7 +194,7 @@ shinyUI(fluidPage(
                 sidebarPanel(
                     selectInput(
                         inputId = "go_id",
-                        label = "GO id:",
+                        label = "GO ID:",
                         choices = go_choices,
                         selected = default_go
                     ),
@@ -133,18 +203,14 @@ shinyUI(fluidPage(
                         inputId = "hours.GO",
                         label = "Hours post-infection:",
                         choices = hours_choices,
-                        selected = hours_choices,
+                        selected = hours_heatmap,
                         inline = TRUE),
                     
                     checkboxGroupInput(
                         inputId = "infection.GO",
                         label = "Infection:",
-                        choices = list(
-                            "Control"="CN",
-                            "M. tuberculosis"="TB",
-                            "M. bovis"="MB"),
-                        selected = c("CN", "TB", "MB"),
-                        inline = TRUE),
+                        choices = infection_choices,
+                        selected = infection_selected),
                     
                     checkboxGroupInput(
                         inputId = "animal.GO",
@@ -160,8 +226,25 @@ shinyUI(fluidPage(
                         max = 2,
                         value = 0.8,
                         step = 0.1
-                    )
+                    ),
                     
+                    sliderInput(
+                        inputId = "margins.heatmap.bottom",
+                        label = "Bottom margin:",
+                        min = 3,
+                        max = 30,
+                        value = 7,
+                        step = 1
+                    ),
+                    
+                    sliderInput(
+                        inputId = "margins.heatmap.right",
+                        label = "Right margin:",
+                        min = 3,
+                        max = 30,
+                        value = 5,
+                        step = 1
+                    )
                     
                 ),
                 mainPanel(
@@ -171,7 +254,7 @@ shinyUI(fluidPage(
                     )
                 )
             )
-            ),
+        ),
         
         tabPanel(
             "Scoring table",
@@ -180,13 +263,13 @@ shinyUI(fluidPage(
                 column(width = 1,
                        numericInput(
                            inputId = "min.total",
-                           label = "Min. total_count:",
+                           label = "Min. total:",
                            min = 0,
                            max = max.GO.total,
                            value = 15
-                       )
-                ),
-                column(width = 1,
+                           )
+                       ),
+                column(width = 2,
                        numericInput(
                            inputId = "max.pval",
                            label = "Max. p.val:",
@@ -194,11 +277,11 @@ shinyUI(fluidPage(
                            max = 1,
                            value = 0.05,
                            step = 0.001
+                           )
                        )
-                )
-            ),
+                ),
             dataTableOutput('GOscores')
-            ),
+        ),
         
         "-----",
         
@@ -210,4 +293,6 @@ shinyUI(fluidPage(
         
     )
 ))
+
+
 
